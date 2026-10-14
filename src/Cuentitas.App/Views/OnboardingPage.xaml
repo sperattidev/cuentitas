@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Cuentitas.App.Views.OnboardingPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:Cuentitas.App.ViewModels"
+    xmlns:controls="using:Cuentitas.App.Controls">
+
+    <Grid MaxWidth="760" Padding="32,24,32,24" RowSpacing="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Progreso -->
+        <StackPanel Spacing="6" Visibility="{x:Bind ViewModel.NavVisibility, Mode=OneWay}">
+            <TextBlock Text="{x:Bind ViewModel.StepText, Mode=OneWay}" Style="{StaticResource LabelStyle}" />
+            <ProgressBar Value="{x:Bind ViewModel.Progress, Mode=OneWay}" Maximum="100" />
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="1">
+            <Grid>
+                <!-- 0. Bienvenida -->
+                <StackPanel Spacing="20" VerticalAlignment="Center" Visibility="{x:Bind ViewModel.Step0, Mode=OneWay}" Padding="0,40,0,0">
+                    <Image Width="88" Height="88" Source="ms-appx:///Assets/AppIcon.png" HorizontalAlignment="Left" />
+                    <TextBlock Text="Te damos la bienvenida a Cuentitas" Style="{StaticResource TitleLargeTextBlockStyle}" TextWrapping="Wrap" />
+                    <TextBlock Style="{StaticResource BodyLargeTextBlockStyle}" TextWrapping="Wrap"
+                               Text="En tres minutos dejamos listas tus cuentas, tu sueldo y tus servicios, así te avisamos de los vencimientos y ves en qué se va la plata." />
+                    <StackPanel Spacing="10">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <FontIcon Glyph="&#xE72E;" Foreground="{ThemeResource BrandBrush}" />
+                            <TextBlock Text="Tus datos quedan sólo en esta computadora, en tu usuario de Windows." TextWrapping="Wrap" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <FontIcon Glyph="&#xE8AB;" Foreground="{ThemeResource BrandBrush}" />
+                            <TextBlock Text="Pesos y dólares, con la cotización del día (oficial, MEP, blue)." TextWrapping="Wrap" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <FontIcon Glyph="&#xE787;" Foreground="{ThemeResource BrandBrush}" />
+                            <TextBlock Text="Avisos de vencimientos de luz, gas, expensas, prepaga y más." TextWrapping="Wrap" />
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button Content="Empezar" Style="{StaticResource AccentButtonStyle}" Padding="24,8" Click="OnNextClick" />
+                        <HyperlinkButton Content="Saltear: prefiero cargar todo yo" Click="OnSkipClick" />
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- 1. Cuentas -->
+                <StackPanel Spacing="14" Visibility="{x:Bind ViewModel.Step1, Mode=OneWay}">
+                    <TextBlock Text="¿Dónde tenés tu plata?" Style="{StaticResource TitleTextBlockStyle}" />
+                    <TextBlock Style="{StaticResource BodyTextBlockStyle}" TextWrapping="Wrap"
+                               Text="Poné cuánto hay hoy en cada lugar. No hace falta que sea exacto: después lo podés corregir en Cuentas." />
+                    <Grid ColumnSpacing="12" Padding="16" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="200" />
+                        </Grid.ColumnDefinitions>
+                        <controls:IconBadge IconKey="cash" Color="{x:Bind ViewModel.CashColor}" Size="36" />
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock Text="Efectivo" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            <TextBlock Text="La plata en la billetera" Style="{StaticResource LabelStyle}" />
+                        </StackPanel>
+                        <TextBox Grid.Column="2" PlaceholderText="$ 0" InputScope="Number" VerticalAlignment="Center"
+                                 Text="{x:Bind ViewModel.CashText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    </Grid>
+                    <ItemsControl ItemsSource="{x:Bind ViewModel.Accounts}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:OnboardingAccount">
+                                <Grid ColumnSpacing="12" Padding="16,10" Margin="0,0,0,8" CornerRadius="8"
+                                      Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="200" />
+                                    </Grid.ColumnDefinitions>
+                                    <CheckBox IsChecked="{x:Bind Selected, Mode=TwoWay}" MinWidth="0" VerticalAlignment="Center" />
+                                    <controls:IconBadge Grid.Column="1" IconKey="{x:Bind Icon}" Color="{x:Bind Color}" Size="36" />
+                                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                        <TextBox Text="{x:Bind Name, Mode=TwoWay}" BorderThickness="0" Background="Transparent" Padding="0" FontWeight="SemiBold" />
+                                        <TextBlock Text="{x:Bind Hint}" Style="{StaticResource LabelStyle}" TextWrapping="Wrap" />
+                                    </StackPanel>
+                                    <Grid Grid.Column="3" ColumnSpacing="6" VerticalAlignment="Center">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{x:Bind Symbol}" VerticalAlignment="Center" />
+                                        <TextBox Grid.Column="1" PlaceholderText="0" InputScope="Number"
+                                                 Text="{x:Bind BalanceText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                    </Grid>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+
+                <!-- 2. Sueldo -->
+                <StackPanel Spacing="14" Visibility="{x:Bind ViewModel.Step2, Mode=OneWay}">
+                    <TextBlock Text="Tu sueldo" Style="{StaticResource TitleTextBlockStyle}" />
+                    <TextBlock Style="{StaticResource BodyTextBlockStyle}" TextWrapping="Wrap"
+                               Text="Con esto calculamos cuánto ahorrás y cuándo llegás a tus metas. Cada mes te recordamos registrarlo con el monto real. Si no tenés sueldo fijo, dejalo vacío." />
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="140" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox Header="Sueldo neto (lo que te depositan)" PlaceholderText="$ 0" InputScope="Number"
+                                 Text="{x:Bind ViewModel.SalaryText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <NumberBox Grid.Column="1" Header="Día de cobro" Minimum="1" Maximum="31" SpinButtonPlacementMode="Compact"
+                                   Value="{x:Bind ViewModel.SalaryDay, Mode=TwoWay}" />
+                        <ComboBox Grid.Column="2" Header="Te lo depositan en" HorizontalAlignment="Stretch"
+                                  ItemsSource="{x:Bind ViewModel.PayAccounts}" SelectedIndex="{x:Bind ViewModel.SalaryAccountIndex, Mode=TwoWay}" />
+                    </Grid>
+                    <CheckBox Content="También cobro aguinaldo (medio sueldo en junio y en diciembre)" IsChecked="{x:Bind ViewModel.Aguinaldo, Mode=TwoWay}" />
+                </StackPanel>
+
+                <!-- 3. Servicios -->
+                <StackPanel Spacing="14" Visibility="{x:Bind ViewModel.Step3, Mode=OneWay}">
+                    <TextBlock Text="Tus servicios y gastos fijos" Style="{StaticResource TitleTextBlockStyle}" />
+                    <TextBlock Style="{StaticResource BodyTextBlockStyle}" TextWrapping="Wrap"
+                               Text="Marcá los que pagás. Te avisamos 3 días antes de cada vencimiento. Si el monto cambia (luz, gas), dejalo vacío y lo confirmás al pagar." />
+                    <ComboBox Header="Los pagás con" Width="300" ItemsSource="{x:Bind ViewModel.PayAccounts}"
+                              SelectedIndex="{x:Bind ViewModel.BillsAccountIndex, Mode=TwoWay}" />
+                    <ItemsControl ItemsSource="{x:Bind ViewModel.Bills}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:OnboardingBill">
+                                <Grid ColumnSpacing="12" Padding="16,8" Margin="0,0,0,6" CornerRadius="8"
+                                      Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="110" />
+                                        <ColumnDefinition Width="170" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                                        <CheckBox IsChecked="{x:Bind Selected, Mode=TwoWay}" Content="{x:Bind Name}" />
+                                        <TextBlock Text="{x:Bind FrequencyText}" Style="{StaticResource LabelStyle}" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                    <NumberBox Grid.Column="1" Minimum="1" Maximum="31" Value="{x:Bind Day, Mode=TwoWay}"
+                                               SpinButtonPlacementMode="Compact" ToolTipService.ToolTip="Día de vencimiento" />
+                                    <TextBox Grid.Column="2" PlaceholderText="$ monto" InputScope="Number"
+                                             Text="{x:Bind AmountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                    <CheckBox Grid.Column="3" Content="Varía" IsChecked="{x:Bind Variable, Mode=TwoWay}" MinWidth="0" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+
+                <!-- 4. Listo -->
+                <StackPanel Spacing="16" Visibility="{x:Bind ViewModel.Step4, Mode=OneWay}">
+                    <TextBlock Text="¡Todo listo!" Style="{StaticResource TitleTextBlockStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.Summary, Mode=OneWay}" Style="{StaticResource BodyLargeTextBlockStyle}" TextWrapping="Wrap" />
+                    <Border Style="{StaticResource CardStyle}">
+                        <StackPanel Spacing="10">
+                            <TextBlock Text="Para arrancar" Style="{StaticResource CardTitleStyle}" />
+                            <TextBlock TextWrapping="Wrap" Text="• Cargá cada gasto con Ctrl+N: monto, categoría y Enter." />
+                            <TextBlock TextWrapping="Wrap" Text="• Marcá si el gasto era necesario o prescindible: así sabés cuánto podrías ahorrar." />
+                            <TextBlock TextWrapping="Wrap" Text="• En Vencimientos pagás cada servicio con un clic." />
+                            <TextBlock TextWrapping="Wrap" Text="• En Metas ves cuándo llegás a lo que querés juntar." />
+                        </StackPanel>
+                    </Border>
+                    <ToggleSwitch Header="Avisarme de los vencimientos aunque Cuentitas esté cerrada"
+                                  OnContent="Sí, todos los días a las 10:00" OffContent="No por ahora"
+                                  IsOn="{x:Bind ViewModel.EnableReminders, Mode=TwoWay}" />
+                </StackPanel>
+            </Grid>
+        </ScrollViewer>
+
+        <!-- Botones -->
+        <Grid Grid.Row="2" Visibility="{x:Bind ViewModel.NavVisibility, Mode=OneWay}">
+            <TextBlock Text="{x:Bind ViewModel.Error, Mode=OneWay}" Foreground="{ThemeResource ExpenseBrush}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,280,0" />
+            <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+                <Button Content="Atrás" Click="OnBackClick" Visibility="{x:Bind ViewModel.BackVisibility, Mode=OneWay}" />
+                <Button Content="{x:Bind ViewModel.NextText, Mode=OneWay}" Style="{StaticResource AccentButtonStyle}" Padding="20,6"
+                        Click="OnNextClick" IsEnabled="{x:Bind ViewModel.CanContinue, Mode=OneWay}" />
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Page>

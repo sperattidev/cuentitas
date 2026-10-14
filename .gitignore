@@ -1,0 +1,13 @@
+bin/
+obj/
+dist/
+.vs/
+*.user
+*.db
+*.db-shm
+*.db-wal
+TestResults/
+
+# Guía local del entorno de desarrollo (no se publica)
+CLAUDE.md
+.claude/

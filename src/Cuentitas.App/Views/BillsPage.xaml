@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Cuentitas.App.Views.BillsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:Cuentitas.App.ViewModels"
+    xmlns:controls="using:Cuentitas.App.Controls"
+    Loaded="OnLoaded"
+    Unloaded="OnUnloaded">
+
+    <Page.Resources>
+        <DataTemplate x:Key="RecurringRowTemplate" x:DataType="vm:RecurringRow">
+            <Grid ColumnSpacing="10" Padding="0,6" Background="Transparent">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <controls:IconBadge IconKey="{x:Bind IconKey}" Color="{x:Bind Color}" Size="32" />
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="{x:Bind Name}" Style="{StaticResource BodyStrongTextBlockStyle}" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Text="{x:Bind Subtitle}" Style="{StaticResource LabelStyle}" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+                <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                    <TextBlock Text="{x:Bind AmountText}" Style="{StaticResource AmountStyle}" />
+                    <TextBlock Text="{x:Bind NextText}" Style="{StaticResource LabelStyle}" HorizontalAlignment="Right" />
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
+
+        <MenuFlyout x:Key="DueMenu" Opening="OnDueMenuOpening">
+            <MenuFlyoutItem Text="Pagar" Icon="Accept" Click="OnPayMenuClick" />
+            <MenuFlyoutItem Text="Ver el pago" Icon="View" Click="OnViewPaymentClick" />
+            <MenuFlyoutItem Text="Omitir este vencimiento" Icon="Remove" Click="OnSkipClick" />
+            <MenuFlyoutSeparator />
+            <MenuFlyoutItem Text="Editar pago recurrente" Icon="Edit" Click="OnEditFromDueClick" />
+        </MenuFlyout>
+
+        <MenuFlyout x:Key="RecurringMenu" Opening="OnRecurringMenuOpening">
+            <MenuFlyoutItem Text="Editar" Icon="Edit" Click="OnEditRecurringClick" />
+            <MenuFlyoutItem Text="Archivar (dejar de avisar)" Icon="Folder" Click="OnArchiveRecurringClick" />
+            <MenuFlyoutSeparator />
+            <MenuFlyoutItem Text="Eliminar" Icon="Delete" Click="OnDeleteRecurringClick" />
+        </MenuFlyout>
+    </Page.Resources>
+
+    <Grid MaxWidth="{StaticResource PageMaxWidth}" Padding="{StaticResource PagePadding}" RowSpacing="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState x:Name="Wide">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1180" />
+                    </VisualState.StateTriggers>
+                </VisualState>
+                <VisualState x:Name="Narrow">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="SidePanel.Visibility" Value="Collapsed" />
+                        <Setter Target="ColumnsGrid.ColumnDefinitions[1].Width" Value="0" />
+                        <Setter Target="ColumnsGrid.ColumnSpacing" Value="0" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
+        <!-- Encabezado -->
+        <Grid Margin="0,16,0,0" ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+                <TextBlock Text="Vencimientos" Style="{StaticResource PageTitleStyle}" />
+                <TextBlock Text="Servicios, impuestos, cuotas y cobros que se repiten. Te avisamos antes de que venzan."
+                           Style="{StaticResource LabelStyle}" TextWrapping="Wrap" />
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center"
+                        Visibility="{x:Bind ViewModel.ContentVisibility, Mode=OneWay}">
+                <Button Command="{x:Bind ViewModel.PreviousMonthCommand}" ToolTipService.ToolTip="Mes anterior">
+                    <FontIcon Glyph="&#xE76B;" FontSize="14" />
+                </Button>
+                <Button Command="{x:Bind ViewModel.CurrentMonthCommand}" MinWidth="160" ToolTipService.ToolTip="Volver al mes actual">
+                    <TextBlock Text="{x:Bind ViewModel.MonthTitle, Mode=OneWay}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                </Button>
+                <Button Command="{x:Bind ViewModel.NextMonthCommand}" ToolTipService.ToolTip="Mes siguiente">
+                    <FontIcon Glyph="&#xE76C;" FontSize="14" />
+                </Button>
+            </StackPanel>
+            <Button Grid.Column="2" Style="{StaticResource AccentButtonStyle}" VerticalAlignment="Center" Click="OnNewClick">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <SymbolIcon Symbol="Add" />
+                    <TextBlock Text="Nuevo pago o cobro" />
+                </StackPanel>
+            </Button>
+        </Grid>
+
+        <!-- Resumen -->
+        <Grid Grid.Row="1" ColumnSpacing="16" Visibility="{x:Bind ViewModel.ContentVisibility, Mode=OneWay}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Border Style="{StaticResource CardStyle}" Background="{ThemeResource ExpenseSoftBrush}">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Vencidos" Style="{StaticResource LabelStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.OverdueCount, Mode=OneWay}" Foreground="{ThemeResource ExpenseBrush}" Style="{StaticResource AmountLargeStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.OverdueText, Mode=OneWay}" Style="{StaticResource BodyTextBlockStyle}" />
+                </StackPanel>
+            </Border>
+            <Border Grid.Column="1" Style="{StaticResource CardStyle}" Background="{ThemeResource OptionalSoftBrush}">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Próximos 7 días" Style="{StaticResource LabelStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.WeekCount, Mode=OneWay}" Foreground="{ThemeResource OptionalBrush}" Style="{StaticResource AmountLargeStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.WeekText, Mode=OneWay}" Style="{StaticResource BodyTextBlockStyle}" />
+                </StackPanel>
+            </Border>
+            <Border Grid.Column="2" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Falta pagar en el mes" Style="{StaticResource LabelStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.MonthPendingText, Mode=OneWay}" Style="{StaticResource SubtitleTextBlockStyle}" TextWrapping="Wrap" />
+                    <TextBlock Text="{x:Bind ViewModel.MonthPaidText, Mode=OneWay}" Style="{StaticResource LabelStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.IncomeText, Mode=OneWay}" Foreground="{ThemeResource IncomeBrush}" FontSize="12" />
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Sin pagos configurados -->
+        <Border Grid.Row="1" Grid.RowSpan="2" Style="{StaticResource CardStyle}" VerticalAlignment="Top" Padding="32"
+                Visibility="{x:Bind ViewModel.EmptyVisibility, Mode=OneWay}">
+            <StackPanel Spacing="12" HorizontalAlignment="Center" MaxWidth="520">
+                <FontIcon Glyph="&#xE787;" FontSize="40" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                <TextBlock Text="Todavía no cargaste pagos recurrentes" Style="{StaticResource SubtitleTextBlockStyle}" HorizontalAlignment="Center" />
+                <TextBlock TextWrapping="Wrap" TextAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"
+                           Text="Agregá la luz, el gas, las expensas, la prepaga o el alquiler, y también tu sueldo. Cuentitas te avisa antes de cada vencimiento y con un clic registrás el pago." />
+                <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                    <Button Style="{StaticResource AccentButtonStyle}" Content="Agregar un pago" Click="OnNewClick" />
+                    <Button Content="Agregar mi sueldo" Click="OnNewIncomeClick" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Agenda | pagos configurados -->
+        <Grid x:Name="ColumnsGrid" Grid.Row="2" ColumnSpacing="16" Visibility="{x:Bind ViewModel.ContentVisibility, Mode=OneWay}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*" />
+                <ColumnDefinition Width="2*" />
+            </Grid.ColumnDefinitions>
+
+            <Border Style="{StaticResource CardStyle}" Padding="0">
+                <Grid>
+                    <ListView x:Name="Agenda" SelectionMode="None" IsItemClickEnabled="False" Padding="4,0,4,8"
+                              ItemTemplate="{StaticResource DueRowTemplate}">
+                        <ListView.GroupStyle>
+                            <GroupStyle>
+                                <GroupStyle.HeaderTemplate>
+                                    <DataTemplate x:DataType="vm:DueGroup">
+                                        <Grid>
+                                            <TextBlock Text="{x:Bind Title}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                            <TextBlock Text="{x:Bind TotalText}" Style="{StaticResource LabelStyle}" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </GroupStyle.HeaderTemplate>
+                                <GroupStyle.HeaderContainerStyle>
+                                    <Style TargetType="ListViewHeaderItem">
+                                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                        <Setter Property="Padding" Value="16,12,24,4" />
+                                    </Style>
+                                </GroupStyle.HeaderContainerStyle>
+                            </GroupStyle>
+                        </ListView.GroupStyle>
+                    </ListView>
+                    <StackPanel Visibility="{x:Bind ViewModel.AgendaEmptyVisibility, Mode=OneWay}" Spacing="8"
+                                HorizontalAlignment="Center" VerticalAlignment="Center" Padding="24">
+                        <FontIcon Glyph="&#xE73E;" FontSize="36" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                        <TextBlock Text="No hay vencimientos en este mes" Style="{StaticResource BodyStrongTextBlockStyle}" HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <ScrollViewer x:Name="SidePanel" Grid.Column="1">
+                <StackPanel Spacing="16">
+                    <Border Style="{StaticResource CardStyle}">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Tus pagos recurrentes" Style="{StaticResource CardTitleStyle}" />
+                            <TextBlock Text="Clic para editar · clic derecho para más opciones." Style="{StaticResource LabelStyle}" />
+                            <ListView x:Name="PaymentsList" ItemsSource="{x:Bind ViewModel.Payments}" SelectionMode="None"
+                                      IsItemClickEnabled="True" ItemClick="OnRecurringClick" Margin="-16,4"
+                                      ItemTemplate="{StaticResource RecurringRowTemplate}" />
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource CardStyle}" Visibility="{x:Bind ViewModel.IncomesVisibility, Mode=OneWay}">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Tus cobros" Style="{StaticResource CardTitleStyle}" />
+                            <ListView x:Name="IncomesList" ItemsSource="{x:Bind ViewModel.Incomes}" SelectionMode="None"
+                                      IsItemClickEnabled="True" ItemClick="OnRecurringClick" Margin="-16,4"
+                                      ItemTemplate="{StaticResource RecurringRowTemplate}" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</Page>

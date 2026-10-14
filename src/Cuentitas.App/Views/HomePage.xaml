@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Cuentitas.App.Views.HomePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:Cuentitas.App.ViewModels"
+    xmlns:controls="using:Cuentitas.App.Controls"
+    Loaded="OnLoaded"
+    Unloaded="OnUnloaded">
+
+    <ScrollViewer>
+        <Grid MaxWidth="{StaticResource PageMaxWidth}" Padding="{StaticResource PagePadding}" RowSpacing="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <VisualStateManager.VisualStateGroups>
+                <VisualStateGroup>
+                    <VisualState x:Name="Wide">
+                        <VisualState.StateTriggers>
+                            <AdaptiveTrigger MinWindowWidth="1180" />
+                        </VisualState.StateTriggers>
+                    </VisualState>
+                    <VisualState x:Name="Narrow">
+                        <VisualState.StateTriggers>
+                            <AdaptiveTrigger MinWindowWidth="0" />
+                        </VisualState.StateTriggers>
+                        <VisualState.Setters>
+                            <Setter Target="MainColumns.ColumnDefinitions[1].Width" Value="0" />
+                            <Setter Target="SideColumn.(Grid.Column)" Value="0" />
+                            <Setter Target="SideColumn.(Grid.Row)" Value="1" />
+                            <Setter Target="SideColumn.Margin" Value="0,16,0,0" />
+                            <Setter Target="StatsGrid.ColumnDefinitions[2].Width" Value="0" />
+                            <Setter Target="BalanceCard.(Grid.Column)" Value="0" />
+                            <Setter Target="BalanceCard.(Grid.Row)" Value="1" />
+                            <Setter Target="BalanceCard.(Grid.ColumnSpan)" Value="2" />
+                            <Setter Target="BalanceCard.Margin" Value="0,16,0,0" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateManager.VisualStateGroups>
+
+            <!-- Encabezado -->
+            <StackPanel Spacing="2" Margin="0,16,0,0">
+                <TextBlock Text="{x:Bind ViewModel.Greeting}" Style="{StaticResource PageTitleStyle}" />
+                <TextBlock Text="{x:Bind ViewModel.MonthTitle}" Style="{StaticResource BodyTextBlockStyle}"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+            </StackPanel>
+
+            <!-- Patrimonio -->
+            <Border Grid.Row="1" CornerRadius="{StaticResource CardCornerRadius}" Background="{ThemeResource HeroBrush}" Padding="24">
+                <Grid ColumnSpacing="32" RowSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Tu plata en pesos" Foreground="#D9FFFFFF" Style="{StaticResource CaptionTextBlockStyle}" />
+                        <TextBlock Text="{x:Bind ViewModel.NetWorthArs, Mode=OneWay}" Foreground="White" Style="{StaticResource AmountHeroStyle}" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Spacing="4" Visibility="{x:Bind ViewModel.UsdVisibility, Mode=OneWay}">
+                        <TextBlock Text="Tus dólares" Foreground="#D9FFFFFF" Style="{StaticResource CaptionTextBlockStyle}" />
+                        <TextBlock Text="{x:Bind ViewModel.NetWorthUsd, Mode=OneWay}" Foreground="White" Style="{StaticResource AmountHeroStyle}" />
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="12"
+                                Visibility="{x:Bind ViewModel.EquivalentVisibility, Mode=OneWay}">
+                        <TextBlock Text="{x:Bind ViewModel.TotalEquivalentText, Mode=OneWay}" Foreground="White" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                        <TextBlock Text="{x:Bind ViewModel.QuoteHint, Mode=OneWay}" Foreground="#D9FFFFFF" Style="{StaticResource CaptionTextBlockStyle}" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Grid.RowSpan="2" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                        <Button Click="OnBuyDollarsClick" Background="#33FFFFFF" Foreground="White" BorderBrush="#55FFFFFF">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE8AB;" FontSize="14" />
+                                <TextBlock Text="Comprar dólares" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Resumen del mes -->
+            <Grid x:Name="StatsGrid" Grid.Row="2" ColumnSpacing="16">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border Style="{StaticResource CardStyle}">
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Ingresos del mes" Style="{StaticResource LabelStyle}" />
+                        <TextBlock Text="{x:Bind ViewModel.IncomeText, Mode=OneWay}" Foreground="{ThemeResource IncomeBrush}" Style="{StaticResource AmountLargeStyle}" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="1" Style="{StaticResource CardStyle}">
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Gastos del mes" Style="{StaticResource LabelStyle}" />
+                        <TextBlock Text="{x:Bind ViewModel.ExpenseText, Mode=OneWay}" Style="{StaticResource AmountLargeStyle}" />
+                        <ProgressBar Value="{x:Bind ViewModel.ExpenseRatio, Mode=OneWay}" Maximum="100"
+                                     ToolTipService.ToolTip="Gastos sobre ingresos del mes" />
+                    </StackPanel>
+                </Border>
+                <Border x:Name="BalanceCard" Grid.Column="2" Style="{StaticResource CardStyle}">
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Balance del mes" Style="{StaticResource LabelStyle}" />
+                        <TextBlock Text="{x:Bind ViewModel.NetText, Mode=OneWay}" Foreground="{x:Bind ViewModel.NetBrush, Mode=OneWay}" Style="{StaticResource AmountLargeStyle}" />
+                        <TextBlock Text="{x:Bind ViewModel.SavingsRateText, Mode=OneWay}" Style="{StaticResource LabelStyle}" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- Columnas: movimientos | análisis + cuentas -->
+            <Grid x:Name="MainColumns" Grid.Row="3" ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*" />
+                    <ColumnDefinition Width="2*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Border Style="{StaticResource CardStyle}" VerticalAlignment="Top">
+                    <StackPanel Spacing="8">
+                        <Grid>
+                            <TextBlock Text="Últimos movimientos" Style="{StaticResource CardTitleStyle}" VerticalAlignment="Center" />
+                            <HyperlinkButton Content="Ver todos" HorizontalAlignment="Right" Click="OnSeeAllClick" />
+                        </Grid>
+                        <StackPanel Visibility="{x:Bind ViewModel.EmptyVisibility, Mode=OneWay}" Spacing="8" Padding="0,24" HorizontalAlignment="Center">
+                            <FontIcon Glyph="&#xE9F9;" FontSize="36" HorizontalAlignment="Center" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                            <TextBlock Text="Todavía no cargaste movimientos" Style="{StaticResource BodyStrongTextBlockStyle}" HorizontalAlignment="Center" />
+                            <TextBlock Text="Usá «Nuevo movimiento» o Ctrl+N para cargar tu primer gasto o tu sueldo."
+                                       Style="{StaticResource LabelStyle}" TextWrapping="Wrap" TextAlignment="Center" MaxWidth="320" />
+                        </StackPanel>
+                        <ListView ItemsSource="{x:Bind ViewModel.Recent}" SelectionMode="None" IsItemClickEnabled="True"
+                                  ItemClick="OnTransactionClick" ItemTemplate="{StaticResource TransactionRowWithDateTemplate}"
+                                  Margin="-16,0" />
+                    </StackPanel>
+                </Border>
+
+                <StackPanel x:Name="SideColumn" Grid.Column="1" Spacing="16">
+                    <Border Style="{StaticResource CardStyle}" Visibility="{x:Bind ViewModel.BillsVisibility, Mode=OneWay}">
+                        <StackPanel Spacing="4">
+                            <Grid>
+                                <TextBlock Text="{x:Bind ViewModel.BillsTitle, Mode=OneWay}" Style="{StaticResource CardTitleStyle}" VerticalAlignment="Center" />
+                                <HyperlinkButton Content="Ver todos" HorizontalAlignment="Right" Click="OnBillsClick" />
+                            </Grid>
+                            <ItemsControl ItemsSource="{x:Bind ViewModel.UpcomingBills}" ItemTemplate="{StaticResource DueRowTemplate}" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource CardStyle}" Visibility="{x:Bind ViewModel.BudgetsVisibility, Mode=OneWay}">
+                        <StackPanel Spacing="8">
+                            <Grid>
+                                <TextBlock Text="Presupuestos en riesgo" Style="{StaticResource CardTitleStyle}" VerticalAlignment="Center" />
+                                <HyperlinkButton Content="Ver todos" HorizontalAlignment="Right" Click="OnBudgetsClick" />
+                            </Grid>
+                            <ItemsControl ItemsSource="{x:Bind ViewModel.BudgetAlerts}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:BudgetRow">
+                                        <Grid ColumnSpacing="10" Margin="0,0,0,10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <controls:IconBadge IconKey="{x:Bind IconKey}" Color="{x:Bind Color}" Size="32" />
+                                            <StackPanel Grid.Column="1" Spacing="3">
+                                                <Grid>
+                                                    <TextBlock Text="{x:Bind Name}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                                    <TextBlock Text="{x:Bind PercentText}" Foreground="{x:Bind BarBrush}" HorizontalAlignment="Right" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                                </Grid>
+                                                <ProgressBar Value="{x:Bind Percent}" Maximum="100" Foreground="{x:Bind BarBrush}" />
+                                                <TextBlock Text="{x:Bind StatusText}" Style="{StaticResource LabelStyle}" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource CardStyle}" Visibility="{x:Bind ViewModel.GoalsVisibility, Mode=OneWay}">
+                        <StackPanel Spacing="10">
+                            <Grid>
+                                <TextBlock Text="Tus metas" Style="{StaticResource CardTitleStyle}" VerticalAlignment="Center" />
+                                <HyperlinkButton Content="Ver todas" HorizontalAlignment="Right" Click="OnGoalsClick" />
+                            </Grid>
+                            <ItemsControl ItemsSource="{x:Bind ViewModel.Goals}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:GoalCard">
+                                        <Grid ColumnSpacing="10" Margin="0,0,0,12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <controls:IconBadge IconKey="{x:Bind IconKey}" Color="{x:Bind Color}" Size="32" />
+                                            <StackPanel Grid.Column="1" Spacing="3">
+                                                <Grid>
+                                                    <TextBlock Text="{x:Bind Name}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                                    <TextBlock Text="{x:Bind PercentText}" HorizontalAlignment="Right" />
+                                                </Grid>
+                                                <ProgressBar Value="{x:Bind ProgressPercent}" Maximum="100" Foreground="{x:Bind ColorBrush}" />
+                                                <TextBlock Text="{x:Bind EtaText}" Foreground="{x:Bind EtaBrush}" Style="{StaticResource LabelStyle}" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource CardStyle}">
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="¿En qué se fue la plata?" Style="{StaticResource CardTitleStyle}" />
+                            <TextBlock Text="Sin gastos en pesos este mes." Style="{StaticResource LabelStyle}"
+                                       Visibility="{x:Bind ViewModel.CategoriesEmptyVisibility, Mode=OneWay}" />
+                            <ItemsControl ItemsSource="{x:Bind ViewModel.TopCategories}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:CategoryBar">
+                                        <Grid ColumnSpacing="10" Margin="0,0,0,12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <controls:IconBadge IconKey="{x:Bind IconKey}" Color="{x:Bind Color}" Size="32" />
+                                            <StackPanel Grid.Column="1" Spacing="4">
+                                                <Grid>
+                                                    <TextBlock Text="{x:Bind Name}" />
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+                                                        <TextBlock Text="{x:Bind ShareText}" Style="{StaticResource LabelStyle}" VerticalAlignment="Center" />
+                                                        <TextBlock Text="{x:Bind AmountText}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                                    </StackPanel>
+                                                </Grid>
+                                                <ProgressBar Value="{x:Bind Percent}" Maximum="100" Foreground="{x:Bind BarBrush}" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource CardStyle}" Background="{ThemeResource OptionalSoftBrush}">
+                        <StackPanel Spacing="6">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE8C6;" FontSize="16" Foreground="{ThemeResource OptionalBrush}" />
+                                <TextBlock Text="Gastos prescindibles del mes" Style="{StaticResource CardTitleStyle}" />
+                            </StackPanel>
+                            <TextBlock Text="{x:Bind ViewModel.OptionalText, Mode=OneWay}" Foreground="{ThemeResource OptionalBrush}" Style="{StaticResource AmountLargeStyle}" />
+                            <TextBlock Text="{x:Bind ViewModel.OptionalHint, Mode=OneWay}" Style="{StaticResource LabelStyle}" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource CardStyle}">
+                        <StackPanel Spacing="8">
+                            <Grid>
+                                <TextBlock Text="Tus cuentas" Style="{StaticResource CardTitleStyle}" VerticalAlignment="Center" />
+                                <HyperlinkButton Content="Administrar" HorizontalAlignment="Right" Click="OnAccountsClick" />
+                            </Grid>
+                            <ItemsControl ItemsSource="{x:Bind ViewModel.Accounts}" ItemTemplate="{StaticResource AccountRowTemplate}" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </ScrollViewer>
+</Page>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Selector reutilizable de ícono + color para cuentas y categorías. -->
+<UserControl
+    x:Class="Cuentitas.App.Controls.IconColorPicker"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:helpers="using:Cuentitas.App.Helpers"
+    xmlns:controls="using:Cuentitas.App.Controls">
+
+    <StackPanel Spacing="12">
+        <Grid ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <controls:IconBadge x:Name="Preview" Size="48" />
+            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                <TextBlock Text="Ícono y color" />
+                <TextBlock x:Name="IconLabel" Style="{StaticResource LabelStyle}" />
+            </StackPanel>
+        </Grid>
+
+        <GridView x:Name="IconGrid" MaxHeight="156" SelectionMode="Single" SelectionChanged="OnIconSelected">
+            <GridView.ItemTemplate>
+                <DataTemplate x:DataType="helpers:AppIcon">
+                    <Grid Width="36" Height="36" ToolTipService.ToolTip="{x:Bind Label}">
+                        <FontIcon Glyph="{x:Bind Glyph}" FontFamily="{x:Bind Font}" FontSize="16" />
+                    </Grid>
+                </DataTemplate>
+            </GridView.ItemTemplate>
+        </GridView>
+
+        <GridView x:Name="ColorGrid" SelectionMode="Single" SelectionChanged="OnColorSelected">
+            <GridView.ItemContainerStyle>
+                <Style TargetType="GridViewItem" BasedOn="{StaticResource DefaultGridViewItemStyle}">
+                    <Setter Property="MinWidth" Value="0" />
+                    <Setter Property="MinHeight" Value="0" />
+                    <Setter Property="Width" Value="40" />
+                    <Setter Property="Height" Value="40" />
+                    <Setter Property="Margin" Value="0,0,4,4" />
+                </Style>
+            </GridView.ItemContainerStyle>
+            <GridView.ItemTemplate>
+                <DataTemplate x:DataType="SolidColorBrush">
+                    <Ellipse Width="22" Height="22" Fill="{x:Bind}" />
+                </DataTemplate>
+            </GridView.ItemTemplate>
+        </GridView>
+    </StackPanel>
+</UserControl>

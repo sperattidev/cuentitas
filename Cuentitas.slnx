@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Cuentitas.App/Cuentitas.App.csproj">
+      <Platform Project="x64" />
+    </Project>
+    <Project Path="src/Cuentitas.Core/Cuentitas.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Cuentitas.Core.Tests/Cuentitas.Core.Tests.csproj" />
+  </Folder>
+</Solution>

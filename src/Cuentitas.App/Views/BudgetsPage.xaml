@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Cuentitas.App.Views.BudgetsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:Cuentitas.App.ViewModels"
+    xmlns:controls="using:Cuentitas.App.Controls"
+    xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
+    Loaded="OnLoaded"
+    Unloaded="OnUnloaded">
+
+    <ScrollViewer>
+        <StackPanel MaxWidth="1000" Padding="{StaticResource PagePadding}" Spacing="16">
+            <Grid Margin="0,16,0,0" ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="Presupuestos" Style="{StaticResource PageTitleStyle}" />
+                    <TextBlock Text="Un tope mensual por categoría. Te avisamos al llegar al 80 % y si te pasás."
+                               Style="{StaticResource LabelStyle}" TextWrapping="Wrap" />
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                    <Button Command="{x:Bind ViewModel.PreviousMonthCommand}"><FontIcon Glyph="&#xE76B;" FontSize="14" /></Button>
+                    <Border MinWidth="150" Padding="12,5" CornerRadius="4" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                        <TextBlock Text="{x:Bind ViewModel.MonthTitle, Mode=OneWay}" Style="{StaticResource BodyStrongTextBlockStyle}" HorizontalAlignment="Center" />
+                    </Border>
+                    <Button Command="{x:Bind ViewModel.NextMonthCommand}" IsEnabled="{x:Bind ViewModel.CanGoNext, Mode=OneWay}"><FontIcon Glyph="&#xE76C;" FontSize="14" /></Button>
+                </StackPanel>
+                <Button Grid.Column="2" Style="{StaticResource AccentButtonStyle}" VerticalAlignment="Center" Click="OnNewClick">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <SymbolIcon Symbol="Add" />
+                        <TextBlock Text="Nuevo presupuesto" />
+                    </StackPanel>
+                </Button>
+            </Grid>
+
+            <!-- Total -->
+            <Border Style="{StaticResource CardStyle}" Visibility="{x:Bind ViewModel.ContentVisibility, Mode=OneWay}">
+                <StackPanel Spacing="6">
+                    <Grid>
+                        <TextBlock Text="Total del mes" Style="{StaticResource CardTitleStyle}" />
+                        <TextBlock Text="{x:Bind ViewModel.TotalHint, Mode=OneWay}" Style="{StaticResource LabelStyle}" HorizontalAlignment="Right" />
+                    </Grid>
+                    <TextBlock Text="{x:Bind ViewModel.TotalText, Mode=OneWay}" Style="{StaticResource AmountLargeStyle}" />
+                    <ProgressBar Value="{x:Bind ViewModel.TotalPercent, Mode=OneWay}" Maximum="100" Height="6" Foreground="{x:Bind ViewModel.TotalBrush, Mode=OneWay}" />
+                    <TextBlock Text="{x:Bind ViewModel.AlertText, Mode=OneWay}" Style="{StaticResource BodyTextBlockStyle}" />
+                </StackPanel>
+            </Border>
+
+            <!-- Sin presupuestos -->
+            <Border Style="{StaticResource CardStyle}" Padding="32" Visibility="{x:Bind ViewModel.EmptyVisibility, Mode=OneWay}">
+                <StackPanel Spacing="12" HorizontalAlignment="Center" MaxWidth="520">
+                    <FontIcon Glyph="&#xE9D2;" FontSize="40" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                    <TextBlock Text="Todavía no tenés presupuestos" Style="{StaticResource SubtitleTextBlockStyle}" HorizontalAlignment="Center" />
+                    <TextBlock TextWrapping="Wrap" TextAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"
+                               Text="Ponele un tope a las categorías donde más se te va la plata (delivery, salidas, supermercado). Te sugerimos el monto según tu promedio." />
+                    <Button Style="{StaticResource AccentButtonStyle}" Content="Crear un presupuesto" HorizontalAlignment="Center" Click="OnNewClick" />
+                </StackPanel>
+            </Border>
+
+            <!-- Presupuestos -->
+            <Border Style="{StaticResource CardStyle}" Padding="4,8" Visibility="{x:Bind ViewModel.ContentVisibility, Mode=OneWay}">
+                <ListView ItemsSource="{x:Bind ViewModel.Rows}" SelectionMode="None" IsItemClickEnabled="True" ItemClick="OnRowClick">
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:BudgetRow">
+                            <Grid ColumnSpacing="12" Padding="0,10" Background="Transparent">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <controls:IconBadge IconKey="{x:Bind IconKey}" Color="{x:Bind Color}" Size="40" />
+                                <StackPanel Grid.Column="1" Spacing="4" VerticalAlignment="Center">
+                                    <Grid>
+                                        <TextBlock Text="{x:Bind Name}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                        <TextBlock Text="{x:Bind SpentText}" HorizontalAlignment="Right" />
+                                    </Grid>
+                                    <ProgressBar Value="{x:Bind Percent}" Maximum="100" Height="6" Foreground="{x:Bind BarBrush}" />
+                                    <Grid>
+                                        <TextBlock Text="{x:Bind ProjectionText}" Foreground="{x:Bind ProjectionBrush}" Visibility="{x:Bind ProjectionVisibility}" FontSize="12" />
+                                        <TextBlock Text="{x:Bind StatusText}" Foreground="{x:Bind BarBrush}" FontSize="12" HorizontalAlignment="Right" />
+                                    </Grid>
+                                </StackPanel>
+                                <TextBlock Grid.Column="2" Text="{x:Bind PercentText}" Width="72" TextAlignment="Right" VerticalAlignment="Center"
+                                           Style="{StaticResource SubtitleTextBlockStyle}" Foreground="{x:Bind BarBrush}" />
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </Border>
+
+            <!-- Sin tope -->
+            <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.UnbudgetedVisibility, Mode=OneWay}">
+                <TextBlock Text="Gastaste en estas categorías y no tienen tope" Style="{StaticResource SubtitleTextBlockStyle}" />
+                <ItemsControl ItemsSource="{x:Bind ViewModel.Unbudgeted}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <toolkit:WrapPanel HorizontalSpacing="12" VerticalSpacing="12" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:UnbudgetedRow">
+                            <Button Tag="{x:Bind}" Click="OnUnbudgetedClick" Padding="12,8" HorizontalContentAlignment="Left">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <controls:IconBadge IconKey="{x:Bind IconKey}" Color="{x:Bind Color}" Size="28" />
+                                    <StackPanel>
+                                        <TextBlock Text="{x:Bind Name}" />
+                                        <TextBlock Text="{x:Bind SpentText}" Style="{StaticResource LabelStyle}" />
+                                    </StackPanel>
+                                    <TextBlock Text="Ponerle tope" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" VerticalAlignment="Center" Margin="8,0,0,0" />
+                                </StackPanel>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

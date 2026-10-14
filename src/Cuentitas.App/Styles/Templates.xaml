@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Plantillas compartidas (con x:Bind, por eso tiene code-behind). -->
+<ResourceDictionary
+    x:Class="Cuentitas.App.Styles.Templates"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Cuentitas.App.Controls"
+    xmlns:vm="using:Cuentitas.App.ViewModels">
+
+    <!-- Fila de movimiento: ícono · título/subtítulo · monto -->
+    <DataTemplate x:Key="TransactionRowTemplate" x:DataType="vm:TransactionItem">
+        <Grid ColumnSpacing="12" Padding="0,8" Background="Transparent">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <controls:IconBadge IconKey="{x:Bind IconKey}" Color="{x:Bind IconColor}" Size="40" />
+            <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock Text="{x:Bind Title}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                    <Border Style="{StaticResource PillStyle}" Background="{ThemeResource OptionalSoftBrush}"
+                            Visibility="{x:Bind OptionalVisibility}" ToolTipService.ToolTip="Gasto prescindible">
+                        <TextBlock Text="Prescindible" FontSize="11" Foreground="{ThemeResource OptionalBrush}" />
+                    </Border>
+                </StackPanel>
+                <TextBlock Text="{x:Bind Subtitle}" Style="{StaticResource LabelStyle}" TextTrimming="CharacterEllipsis" />
+            </StackPanel>
+            <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="2">
+                <TextBlock Text="{x:Bind AmountText}" Foreground="{x:Bind AmountBrush}" Style="{StaticResource AmountStyle}" />
+                <TextBlock Text="{x:Bind SecondaryAmountText}" Visibility="{x:Bind SecondaryVisibility}"
+                           Style="{StaticResource LabelStyle}" HorizontalAlignment="Right" />
+            </StackPanel>
+        </Grid>
+    </DataTemplate>
+
+    <!-- Fila compacta de movimiento con fecha (Inicio) -->
+    <DataTemplate x:Key="TransactionRowWithDateTemplate" x:DataType="vm:TransactionItem">
+        <Grid ColumnSpacing="12" Padding="0,8" Background="Transparent">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <controls:IconBadge IconKey="{x:Bind IconKey}" Color="{x:Bind IconColor}" Size="40" />
+            <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                <TextBlock Text="{x:Bind Title}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                <TextBlock Text="{x:Bind Subtitle}" Style="{StaticResource LabelStyle}" TextTrimming="CharacterEllipsis" />
+            </StackPanel>
+            <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="2">
+                <TextBlock Text="{x:Bind AmountText}" Foreground="{x:Bind AmountBrush}" Style="{StaticResource AmountStyle}" />
+                <TextBlock Text="{x:Bind DateText}" Style="{StaticResource LabelStyle}" HorizontalAlignment="Right" />
+            </StackPanel>
+        </Grid>
+    </DataTemplate>
+
+    <!-- Fila de cuenta: ícono · nombre/tipo · saldo -->
+    <DataTemplate x:Key="AccountRowTemplate" x:DataType="vm:AccountOption">
+        <Grid ColumnSpacing="12" Padding="0,6">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <controls:IconBadge IconKey="{x:Bind IconKey}" Color="{x:Bind Color}" Size="36" />
+            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                <TextBlock Text="{x:Bind Name}" Style="{StaticResource BodyStrongTextBlockStyle}" TextTrimming="CharacterEllipsis" />
+                <TextBlock Text="{x:Bind TypeLabel}" Style="{StaticResource LabelStyle}" />
+            </StackPanel>
+            <TextBlock Grid.Column="2" Text="{x:Bind BalanceText}" Style="{StaticResource AmountStyle}" VerticalAlignment="Center" />
+        </Grid>
+    </DataTemplate>
+
+    <!-- Opción de cuenta en un ComboBox -->
+    <DataTemplate x:Key="AccountComboTemplate" x:DataType="vm:AccountOption">
+        <StackPanel Orientation="Horizontal" Spacing="10">
+            <controls:IconBadge IconKey="{x:Bind IconKey}" Color="{x:Bind Color}" Size="24" />
+            <TextBlock Text="{x:Bind Name}" VerticalAlignment="Center" />
+            <TextBlock Text="{x:Bind BalanceText}" VerticalAlignment="Center" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+        </StackPanel>
+    </DataTemplate>
+
+        <!-- Vencimiento: ícono · nombre/fecha · estado/monto · botón Pagar -->
+        <DataTemplate x:Key="DueRowTemplate" x:DataType="vm:DueItem">
+            <Grid ColumnSpacing="12" Padding="0,8" Background="Transparent" Opacity="{x:Bind RowOpacity}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="90" />
+                </Grid.ColumnDefinitions>
+                <controls:IconBadge IconKey="{x:Bind IconKey}" Color="{x:Bind Color}" Size="40" />
+                <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                    <TextBlock Text="{x:Bind Name}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                    <TextBlock Text="{x:Bind Subtitle}" Style="{StaticResource LabelStyle}" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+                <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="2">
+                    <TextBlock Text="{x:Bind AmountText}" Foreground="{x:Bind AmountBrush}" Style="{StaticResource AmountStyle}" />
+                    <TextBlock Text="{x:Bind StatusText}" Foreground="{x:Bind StatusBrush}" FontSize="12" HorizontalAlignment="Right" />
+                </StackPanel>
+                <Button Grid.Column="3" Content="{x:Bind PayText}" Tag="{x:Bind}" Visibility="{x:Bind PayVisibility}"
+                        Style="{StaticResource AccentButtonStyle}" HorizontalAlignment="Right" Click="OnPayClick" />
+            </Grid>
+        </DataTemplate>
+
+</ResourceDictionary>

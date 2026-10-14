@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Cuentitas.App.Views.AccountsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:Cuentitas.App.ViewModels"
+    xmlns:controls="using:Cuentitas.App.Controls"
+    Loaded="OnLoaded"
+    Unloaded="OnUnloaded">
+
+    <Page.Resources>
+        <DataTemplate x:Key="AccountCardTemplate" x:DataType="vm:AccountOption">
+            <Grid Width="270" Height="156" Padding="18" RowSpacing="4"
+                  Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                  BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="12">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="3" Text="{x:Bind FutureText}" Visibility="{x:Bind FutureVisibility}"
+                           Style="{StaticResource LabelStyle}" TextTrimming="CharacterEllipsis" Margin="0,8,0,0" />
+                <Grid ColumnSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <controls:IconBadge IconKey="{x:Bind IconKey}" Color="{x:Bind Color}" Size="40" />
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="{x:Bind Name}" Style="{StaticResource BodyStrongTextBlockStyle}" TextTrimming="CharacterEllipsis" />
+                        <TextBlock Text="{x:Bind TypeLabel}" Style="{StaticResource LabelStyle}" />
+                    </StackPanel>
+                    <Border Grid.Column="2" Style="{StaticResource PillStyle}" Background="{ThemeResource BrandSoftBrush}" VerticalAlignment="Top">
+                        <TextBlock Text="{x:Bind CurrencyCode}" FontSize="11" FontWeight="SemiBold" />
+                    </Border>
+                </Grid>
+                <TextBlock Grid.Row="2" Text="{x:Bind BalanceText}" Style="{StaticResource AmountLargeStyle}" />
+                <Rectangle Grid.Row="2" Height="3" RadiusX="1.5" RadiusY="1.5" Fill="{x:Bind ColorBrush}"
+                           VerticalAlignment="Bottom" Margin="0,0,0,-10" Width="40" HorizontalAlignment="Left" />
+            </Grid>
+        </DataTemplate>
+
+        <MenuFlyout x:Key="AccountMenu" Opening="OnMenuOpening">
+            <MenuFlyoutItem Text="Editar" Icon="Edit" Click="OnEditClick" />
+            <MenuFlyoutItem Text="Archivar" Icon="Folder" Click="OnArchiveClick" />
+            <MenuFlyoutSeparator />
+            <MenuFlyoutItem Text="Eliminar" Icon="Delete" Click="OnDeleteClick" />
+        </MenuFlyout>
+    </Page.Resources>
+
+    <ScrollViewer>
+        <StackPanel MaxWidth="{StaticResource PageMaxWidth}" Padding="{StaticResource PagePadding}" Spacing="16">
+            <Grid Margin="0,16,0,0">
+                <StackPanel>
+                    <TextBlock Text="Cuentas" Style="{StaticResource PageTitleStyle}" />
+                    <TextBlock Style="{StaticResource LabelStyle}" TextWrapping="Wrap"
+                               Text="Efectivo, cuentas bancarias, billeteras virtuales (Mercado Pago, Ualá, Cuenta DNI), tarjetas y dólares. Clic derecho en una cuenta para más opciones." />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Button Click="OnBuyDollarsClick">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE8AB;" FontSize="14" />
+                            <TextBlock Text="Comprar dólares" />
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource AccentButtonStyle}" Click="OnNewClick">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <SymbolIcon Symbol="Add" />
+                            <TextBlock Text="Nueva cuenta" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+
+            <StackPanel Orientation="Horizontal" Spacing="32">
+                <StackPanel>
+                    <TextBlock Text="Total en pesos" Style="{StaticResource LabelStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.TotalArs, Mode=OneWay}" Style="{StaticResource AmountLargeStyle}" />
+                </StackPanel>
+                <StackPanel Visibility="{x:Bind ViewModel.UsdVisibility, Mode=OneWay}">
+                    <TextBlock Text="Total en dólares" Style="{StaticResource LabelStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.TotalUsd, Mode=OneWay}" Style="{StaticResource AmountLargeStyle}" />
+                </StackPanel>
+            </StackPanel>
+
+            <GridView x:Name="ActiveGrid" ItemsSource="{x:Bind ViewModel.Active}" SelectionMode="None" IsItemClickEnabled="True"
+                      ItemClick="OnAccountClick" ItemTemplate="{StaticResource AccountCardTemplate}" />
+
+            <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.ArchivedVisibility, Mode=OneWay}">
+                <TextBlock Text="Archivadas" Style="{StaticResource SubtitleTextBlockStyle}" />
+                <TextBlock Text="No suman al patrimonio y no aparecen al cargar movimientos. Su historial se conserva."
+                           Style="{StaticResource LabelStyle}" />
+                <GridView x:Name="ArchivedGrid" ItemsSource="{x:Bind ViewModel.Archived}" SelectionMode="None" IsItemClickEnabled="True"
+                          ItemClick="OnAccountClick" ItemTemplate="{StaticResource AccountCardTemplate}" Opacity="0.7" />
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

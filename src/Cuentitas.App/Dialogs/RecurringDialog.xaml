@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentDialog
+    x:Class="Cuentitas.App.Dialogs.RecurringDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
+    PrimaryButtonText="Guardar"
+    CloseButtonText="Cancelar"
+    DefaultButton="Primary"
+    PrimaryButtonClick="OnPrimaryClick"
+    Style="{StaticResource DefaultContentDialogStyle}">
+
+    <ContentDialog.Resources>
+        <x:Double x:Key="ContentDialogMaxWidth">720</x:Double>
+        <x:Double x:Key="ContentDialogMaxHeight">900</x:Double>
+    </ContentDialog.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,12,0">
+        <StackPanel Width="620" Spacing="16">
+            <toolkit:Segmented x:Name="TypeBox" HorizontalAlignment="Stretch" SelectionChanged="OnTypeChanged">
+                <toolkit:SegmentedItem Content="Pago (servicio, alquiler, cuota…)" />
+                <toolkit:SegmentedItem Content="Cobro (sueldo, aguinaldo…)" />
+            </toolkit:Segmented>
+
+            <StackPanel x:Name="TemplatesPanel" Spacing="6">
+                <TextBlock Text="Plantillas rápidas" Style="{StaticResource LabelStyle}" />
+                <ItemsControl x:Name="TemplatesList">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <toolkit:WrapPanel HorizontalSpacing="6" VerticalSpacing="6" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </StackPanel>
+
+            <Grid ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <TextBox x:Name="NameBox" Header="Nombre" PlaceholderText="Ej.: Luz, Expensas, Sueldo" MaxLength="60" />
+                <ComboBox x:Name="CategoryBox" Grid.Column="1" Header="Categoría" HorizontalAlignment="Stretch"
+                          DisplayMemberPath="Name" />
+            </Grid>
+
+            <Grid ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <ComboBox x:Name="AccountBox" Header="Se paga con / se cobra en" HorizontalAlignment="Stretch"
+                          ItemTemplate="{StaticResource AccountComboTemplate}" SelectionChanged="OnAccountChanged" />
+                <StackPanel Grid.Column="1" Spacing="4">
+                    <TextBlock x:Name="AmountLabel" Text="Monto estimado" />
+                    <Grid ColumnSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock x:Name="AmountSymbol" Text="$" VerticalAlignment="Center" FontSize="16" />
+                        <TextBox x:Name="AmountBox" Grid.Column="1" PlaceholderText="0" InputScope="Number" />
+                    </Grid>
+                </StackPanel>
+            </Grid>
+            <CheckBox x:Name="VariableBox" Content="El monto cambia cada vez (luz, gas, tarjeta…): lo confirmo al pagar" Margin="0,-8,0,0" />
+
+            <Grid ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <ComboBox x:Name="FrequencyBox" Header="Frecuencia" HorizontalAlignment="Stretch">
+                    <x:String>Mensual</x:String>
+                    <x:String>Bimestral</x:String>
+                    <x:String>Trimestral</x:String>
+                    <x:String>Semestral</x:String>
+                    <x:String>Anual</x:String>
+                </ComboBox>
+                <CalendarDatePicker x:Name="StartBox" Grid.Column="1" Header="Próximo vencimiento" HorizontalAlignment="Stretch"
+                                    FirstDayOfWeek="Monday" DateFormat="{}{day.integer} {month.abbreviated} {year.full}" />
+                <ComboBox x:Name="RemindBox" Grid.Column="2" Header="Avisarme" HorizontalAlignment="Stretch">
+                    <x:String>El mismo día</x:String>
+                    <x:String>1 día antes</x:String>
+                    <x:String>2 días antes</x:String>
+                    <x:String>3 días antes</x:String>
+                    <x:String>5 días antes</x:String>
+                    <x:String>1 semana antes</x:String>
+                </ComboBox>
+            </Grid>
+            <TextBlock x:Name="StartHint" Style="{StaticResource LabelStyle}" TextWrapping="Wrap" Margin="0,-8,0,0"
+                       Text="Si el mes no tiene ese día (ej. 31), vence el último día del mes." />
+
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <CheckBox x:Name="EndCheck" Content="Termina (ej. un préstamo en cuotas)" Checked="OnEndChecked" Unchecked="OnEndChecked" />
+                <CalendarDatePicker x:Name="EndBox" IsEnabled="False" FirstDayOfWeek="Monday"
+                                    DateFormat="{}{day.integer} {month.abbreviated} {year.full}" />
+            </StackPanel>
+
+            <TextBox x:Name="NoteBox" Header="Nota (opcional)" PlaceholderText="Ej.: N.º de cliente 1234-5678" MaxLength="500" />
+
+            <InfoBar x:Name="ErrorBar" Severity="Error" IsClosable="False" />
+        </StackPanel>
+    </ScrollViewer>
+</ContentDialog>

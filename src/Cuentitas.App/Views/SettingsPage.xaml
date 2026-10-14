@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Cuentitas.App.Views.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ScrollViewer>
+        <StackPanel MaxWidth="900" Padding="{StaticResource PagePadding}" Spacing="16">
+            <TextBlock Text="Ajustes" Style="{StaticResource PageTitleStyle}" Margin="0,16,0,0" />
+
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Apariencia" Style="{StaticResource CardTitleStyle}" />
+                    <RadioButtons SelectedIndex="{x:Bind ViewModel.ThemeIndex, Mode=TwoWay}">
+                        <x:String>Usar el tema de Windows</x:String>
+                        <x:String>Claro</x:String>
+                        <x:String>Oscuro</x:String>
+                    </RadioButtons>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="Seguridad" Style="{StaticResource CardTitleStyle}" />
+                    <StackPanel Orientation="Horizontal" Spacing="24">
+                        <ToggleSwitch x:Name="PinToggle" Header="Pedir PIN al abrir Cuentitas" OnContent="Activado" OffContent="Desactivado"
+                                      Toggled="OnPinToggled" />
+                        <ToggleSwitch x:Name="HelloToggle" Header="Desbloquear también con Windows Hello" OnContent="Sí" OffContent="No"
+                                      Toggled="OnHelloToggled" IsEnabled="False" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Button x:Name="ChangePinButton" Content="Cambiar PIN" Click="OnChangePinClick" IsEnabled="False" />
+                        <Button x:Name="LockNowButton" Content="Bloquear ahora (Ctrl+L)" Click="OnLockNowClick" IsEnabled="False" />
+                    </StackPanel>
+                    <TextBlock x:Name="HelloHint" Style="{StaticResource LabelStyle}" TextWrapping="Wrap" />
+                    <TextBlock Style="{StaticResource LabelStyle}" TextWrapping="Wrap"
+                               Text="El PIN evita que otra persona abra Cuentitas en tu sesión de Windows. No cifra el archivo de datos: la mejor protección es que cada persona use su propio usuario de Windows con contraseña." />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="Cotización del dólar" Style="{StaticResource CardTitleStyle}" />
+                    <Grid ColumnSpacing="24">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="260" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Spacing="10">
+                            <ComboBox Header="Valuar mis dólares al" HorizontalAlignment="Stretch"
+                                      ItemsSource="{x:Bind ViewModel.ValuationOptions}"
+                                      SelectedIndex="{x:Bind ViewModel.ValuationIndex, Mode=TwoWay}" />
+                            <ToggleSwitch Header="Actualizar desde internet" OnContent="Sí" OffContent="No (usar la última guardada)"
+                                          IsOn="{x:Bind ViewModel.QuotesEnabled, Mode=TwoWay}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Spacing="6">
+                            <TextBlock Text="{x:Bind ViewModel.QuotesText, Mode=OneWay}" Style="{StaticResource BodyTextBlockStyle}" />
+                            <TextBlock Text="{x:Bind ViewModel.QuotesUpdated, Mode=OneWay}" Style="{StaticResource LabelStyle}" TextWrapping="Wrap" />
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Button Content="Actualizar ahora" Click="OnRefreshQuotesClick" />
+                                <ProgressRing IsActive="{x:Bind ViewModel.Refreshing, Mode=OneWay}" Width="20" Height="20" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                    <TextBlock Style="{StaticResource LabelStyle}" TextWrapping="Wrap"
+                               Text="Se usa para mostrar tu patrimonio total en pesos y proyectar metas en dólares. Sólo se descarga la cotización pública: nunca se envían tus datos." />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="Avisos de vencimientos" Style="{StaticResource CardTitleStyle}" />
+                    <ToggleSwitch Header="Avisarme aunque Cuentitas esté cerrada" OnContent="Activado" OffContent="Desactivado"
+                                  IsOn="{x:Bind ViewModel.RemindersEnabled, Mode=TwoWay}"
+                                  IsEnabled="{x:Bind ViewModel.RemindersReady, Mode=OneWay}" />
+                    <TextBlock Text="{x:Bind ViewModel.RemindersHint}" Style="{StaticResource LabelStyle}" TextWrapping="Wrap" />
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button Content="Probar notificación" Click="OnTestNotificationClick" />
+                        <TextBlock Text="{x:Bind ViewModel.RemindersMessage, Mode=OneWay}" VerticalAlignment="Center"
+                                   Style="{StaticResource BodyTextBlockStyle}" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <TextBlock Style="{StaticResource LabelStyle}" TextWrapping="Wrap"
+                               Text="Con la app abierta, el ícono de Vencimientos muestra cuántos tenés pendientes. Los días de aviso se eligen en cada pago." />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="Tus datos" Style="{StaticResource CardTitleStyle}" />
+                    <TextBlock Style="{StaticResource BodyTextBlockStyle}" TextWrapping="Wrap"
+                               Text="Todo se guarda sólo en esta computadora, en tu usuario de Windows. Nada se sube a internet. Cada persona que use su propio usuario de Windows tiene sus propias cuentas." />
+                    <Button Click="OnExportClick" HorizontalAlignment="Left">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <FontIcon Glyph="&#xE896;" FontSize="14" />
+                            <TextBlock Text="Exportar a Excel o CSV" />
+                        </StackPanel>
+                    </Button>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="Ubicación:" Style="{StaticResource LabelStyle}" VerticalAlignment="Center" />
+                        <TextBlock Text="{x:Bind ViewModel.DataFolder}" Style="{StaticResource LabelStyle}" IsTextSelectionEnabled="True" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Button Style="{StaticResource AccentButtonStyle}" Click="OnBackupClick">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <SymbolIcon Symbol="Save" />
+                                <TextBlock Text="Crear copia de seguridad" />
+                            </StackPanel>
+                        </Button>
+                        <Button Content="Restaurar una copia…" Click="OnRestoreClick" />
+                        <Button Content="Abrir carpeta de copias" Click="OnOpenBackupsClick" />
+                        <Button Content="Abrir carpeta de datos" Click="OnOpenDataClick" />
+                    </StackPanel>
+                    <TextBlock Style="{StaticResource LabelStyle}" TextWrapping="Wrap">
+                        <Run Text="Las copias se guardan en" />
+                        <Run Text="{x:Bind ViewModel.BackupFolder}" />
+                        <Run Text=". Te recomendamos guardarlas también en un pendrive o en la nube." />
+                    </TextBlock>
+                    <InfoBar x:Name="BackupBar" IsClosable="True" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Acerca de Cuentitas" Style="{StaticResource CardTitleStyle}" />
+                    <TextBlock Style="{StaticResource BodyTextBlockStyle}">
+                        <Run Text="Versión" />
+                        <Run Text="{x:Bind ViewModel.Version}" />
+                    </TextBlock>
+                    <TextBlock Style="{StaticResource LabelStyle}" TextWrapping="Wrap"
+                               Text="Tus finanzas personales: gastos, ingresos, cuentas en pesos y dólares. Atajo: Ctrl+N para cargar un movimiento." />
+                    <TextBlock Style="{StaticResource LabelStyle}" TextWrapping="Wrap"
+                               Text="Copyright © 2026 Matias Speratti. Todos los derechos reservados. Uso gratuito no comercial: ver LICENSE.md." />
+                    <HyperlinkButton Content="github.com/sperattidev/cuentitas" NavigateUri="https://github.com/sperattidev/cuentitas" Padding="0" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

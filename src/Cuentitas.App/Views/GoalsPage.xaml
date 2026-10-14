@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Cuentitas.App.Views.GoalsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:Cuentitas.App.ViewModels"
+    xmlns:controls="using:Cuentitas.App.Controls"
+    xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
+    Loaded="OnLoaded"
+    Unloaded="OnUnloaded">
+
+    <Page.Resources>
+        <DataTemplate x:Key="GoalCardTemplate" x:DataType="vm:GoalCard">
+            <Grid Width="380" Padding="20" RowSpacing="10"
+                  Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                  BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="12">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid ColumnSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <controls:IconBadge IconKey="{x:Bind IconKey}" Color="{x:Bind Color}" Size="44" />
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="{x:Bind Name}" Style="{StaticResource SubtitleTextBlockStyle}" FontSize="18" TextTrimming="CharacterEllipsis" />
+                        <TextBlock Text="{x:Bind TrackingText}" Style="{StaticResource LabelStyle}" />
+                    </StackPanel>
+                    <Border Grid.Column="2" Style="{StaticResource PillStyle}" Background="{ThemeResource BrandSoftBrush}" VerticalAlignment="Top">
+                        <TextBlock Text="{x:Bind CurrencyCode}" FontSize="11" FontWeight="SemiBold" />
+                    </Border>
+                </Grid>
+
+                <StackPanel Grid.Row="1" Spacing="6">
+                    <Grid>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="{x:Bind CurrentText}" Style="{StaticResource AmountLargeStyle}" />
+                            <TextBlock Text="{x:Bind TargetText}" Style="{StaticResource BodyTextBlockStyle}" VerticalAlignment="Bottom" Margin="0,0,0,3"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        </StackPanel>
+                        <TextBlock Text="{x:Bind PercentText}" Style="{StaticResource BodyStrongTextBlockStyle}" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
+                    </Grid>
+                    <ProgressBar Value="{x:Bind ProgressPercent}" Maximum="100" Height="6" Foreground="{x:Bind ColorBrush}" />
+                </StackPanel>
+
+                <StackPanel Grid.Row="2" Spacing="2">
+                    <TextBlock Text="{x:Bind EtaText}" Foreground="{x:Bind EtaBrush}" Style="{StaticResource BodyStrongTextBlockStyle}" FontSize="16" />
+                    <TextBlock Text="{x:Bind PaceText}" Style="{StaticResource LabelStyle}" TextWrapping="Wrap" />
+                </StackPanel>
+
+                <StackPanel Grid.Row="3" Spacing="4">
+                    <TextBlock Text="{x:Bind DateText}" Visibility="{x:Bind DateVisibility}" Style="{StaticResource BodyTextBlockStyle}" TextWrapping="Wrap" />
+                    <TextBlock Text="{x:Bind InflationText}" Visibility="{x:Bind InflationVisibility}" Style="{StaticResource LabelStyle}" TextWrapping="Wrap" />
+                    <Border Visibility="{x:Bind CutVisibility}" Background="{ThemeResource IncomeSoftBrush}" CornerRadius="6" Padding="10,6">
+                        <TextBlock Text="{x:Bind CutText}" Foreground="{ThemeResource IncomeBrush}" FontSize="13" TextWrapping="Wrap" />
+                    </Border>
+                </StackPanel>
+
+                <StackPanel Grid.Row="4" Orientation="Horizontal" Spacing="8">
+                    <Button Content="Aportar" Style="{StaticResource AccentButtonStyle}" Tag="{x:Bind}"
+                            Visibility="{x:Bind ContributeVisibility}" Click="OnContributeClick" />
+                    <Button Content="Aportes" Tag="{x:Bind}" Visibility="{x:Bind ContributeVisibility}" Click="OnHistoryClick" />
+                    <Button Tag="{x:Bind}" Click="OnMoreClick" ToolTipService.ToolTip="Más opciones">
+                        <FontIcon Glyph="&#xE712;" FontSize="14" />
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
+    </Page.Resources>
+
+    <ScrollViewer>
+        <StackPanel MaxWidth="{StaticResource PageMaxWidth}" Padding="{StaticResource PagePadding}" Spacing="16">
+            <!-- Encabezado -->
+            <Grid Margin="0,16,0,0" ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="Metas" Style="{StaticResource PageTitleStyle}" />
+                    <TextBlock Text="Cuánto te falta, cuándo llegás y cuánto antes llegarías recortando lo prescindible."
+                               Style="{StaticResource LabelStyle}" TextWrapping="Wrap" />
+                </StackPanel>
+                <Button Grid.Column="1" Style="{StaticResource AccentButtonStyle}" VerticalAlignment="Center" Click="OnNewClick">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <SymbolIcon Symbol="Add" />
+                        <TextBlock Text="Nueva meta" />
+                    </StackPanel>
+                </Button>
+            </Grid>
+
+            <!-- Capacidad de ahorro + parámetros -->
+            <Border Style="{StaticResource CardStyle}">
+                <Grid ColumnSpacing="32" RowSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.ColumnSpan="4" Text="Tu capacidad de ahorro" Style="{StaticResource CardTitleStyle}" />
+                    <TextBlock Grid.Column="4" Text="{x:Bind ViewModel.StatsNote, Mode=OneWay}" Style="{StaticResource LabelStyle}" HorizontalAlignment="Right" />
+                    <StackPanel Grid.Row="1">
+                        <TextBlock Text="Ingresos" Style="{StaticResource LabelStyle}" />
+                        <TextBlock Text="{x:Bind ViewModel.AvgIncomeText, Mode=OneWay}" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="1">
+                        <TextBlock Text="Gastos" Style="{StaticResource LabelStyle}" />
+                        <TextBlock Text="{x:Bind ViewModel.AvgExpenseText, Mode=OneWay}" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="2">
+                        <TextBlock Text="Ahorro por mes" Style="{StaticResource LabelStyle}" />
+                        <TextBlock Text="{x:Bind ViewModel.AvgNetText, Mode=OneWay}" Foreground="{x:Bind ViewModel.AvgNetBrush, Mode=OneWay}" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="3">
+                        <TextBlock Text="De eso, prescindibles" Style="{StaticResource LabelStyle}" />
+                        <TextBlock Text="{x:Bind ViewModel.AvgOptionalText, Mode=OneWay}" Foreground="{ThemeResource OptionalBrush}" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="4" Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                        <TextBox Header="Inflación mensual (%)" Width="150"
+                                 Text="{x:Bind ViewModel.InflationInput, Mode=TwoWay}" LostFocus="OnParamsLostFocus"
+                                 ToolTipService.ToolTip="Se usa para ajustar las metas en pesos" />
+                        <TextBox Header="Dólar de referencia ($)" Width="170" PlaceholderText="Automático"
+                                 Text="{x:Bind ViewModel.UsdRateInput, Mode=TwoWay}" LostFocus="OnParamsLostFocus"
+                                 ToolTipService.ToolTip="{x:Bind ViewModel.UsdRateHint, Mode=OneWay}" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+            <TextBlock Text="{x:Bind ViewModel.ParamsError, Mode=OneWay}" Foreground="{ThemeResource ExpenseBrush}" Margin="0,-8,0,0"
+                       Visibility="{x:Bind ViewModel.ParamsErrorVisibility, Mode=OneWay}" />
+
+            <!-- Simulador -->
+            <Border Style="{StaticResource CardStyle}" Visibility="{x:Bind ViewModel.GoalsVisibility, Mode=OneWay}">
+                <Grid ColumnSpacing="32">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="¿Y si recortás tus gastos prescindibles?" Style="{StaticResource CardTitleStyle}" />
+                        <Slider Minimum="0" Maximum="100" StepFrequency="10" TickFrequency="10" TickPlacement="BottomRight"
+                                Value="{x:Bind ViewModel.CutPercent, Mode=TwoWay}" Header="Recorte" />
+                        <TextBlock Text="{x:Bind ViewModel.CutSummary, Mode=OneWay}" Style="{StaticResource BodyTextBlockStyle}" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Spacing="6" Visibility="{x:Bind ViewModel.RankingVisibility, Mode=OneWay}">
+                        <TextBlock Text="Dónde se va lo prescindible (promedio por mes)" Style="{StaticResource LabelStyle}" />
+                        <ItemsControl ItemsSource="{x:Bind ViewModel.OptionalRanking}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:OptionalRow">
+                                    <Grid ColumnSpacing="10" Margin="0,0,0,10" ToolTipService.ToolTip="{x:Bind HalfText}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <controls:IconBadge IconKey="{x:Bind IconKey}" Color="{x:Bind Color}" Size="28" />
+                                        <StackPanel Grid.Column="1" Spacing="3">
+                                            <Grid>
+                                                <TextBlock Text="{x:Bind Name}" />
+                                                <TextBlock Text="{x:Bind AmountText}" HorizontalAlignment="Right" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                            </Grid>
+                                            <ProgressBar Value="{x:Bind Percent}" Maximum="100" Foreground="{ThemeResource OptionalBrush}" />
+                                        </StackPanel>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Sin metas -->
+            <Border Style="{StaticResource CardStyle}" Padding="32" Visibility="{x:Bind ViewModel.EmptyVisibility, Mode=OneWay}">
+                <StackPanel Spacing="12" HorizontalAlignment="Center" MaxWidth="560">
+                    <FontIcon Glyph="&#xE7C1;" FontSize="40" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                    <TextBlock Text="Todavía no tenés metas" Style="{StaticResource SubtitleTextBlockStyle}" HorizontalAlignment="Center" />
+                    <TextBlock TextWrapping="Wrap" TextAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"
+                               Text="Un fondo de emergencia, las vacaciones, un auto o juntar dólares. Cuentitas calcula cuándo llegás con tu ahorro real y cuánto antes llegarías recortando gastos prescindibles." />
+                    <Button Style="{StaticResource AccentButtonStyle}" Content="Crear mi primera meta" HorizontalAlignment="Center" Click="OnNewClick" />
+                </StackPanel>
+            </Border>
+
+            <!-- Metas -->
+            <!-- WrapPanel (no GridView): las tarjetas tienen alturas distintas. -->
+            <ItemsControl ItemsSource="{x:Bind ViewModel.Goals}" ItemTemplate="{StaticResource GoalCardTemplate}"
+                          Visibility="{x:Bind ViewModel.GoalsVisibility, Mode=OneWay}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <toolkit:WrapPanel HorizontalSpacing="16" VerticalSpacing="16" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

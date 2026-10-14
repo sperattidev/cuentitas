@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentDialog
+    x:Class="Cuentitas.App.Dialogs.AccountDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
+    xmlns:controls="using:Cuentitas.App.Controls"
+    PrimaryButtonText="Guardar"
+    CloseButtonText="Cancelar"
+    DefaultButton="Primary"
+    PrimaryButtonClick="OnPrimaryClick"
+    Style="{StaticResource DefaultContentDialogStyle}">
+
+    <ContentDialog.Resources>
+        <x:Double x:Key="ContentDialogMaxWidth">640</x:Double>
+    </ContentDialog.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,12,0">
+        <StackPanel Width="540" Spacing="16">
+            <TextBox x:Name="NameBox" Header="Nombre" PlaceholderText="Ej.: Banco Nación, Mercado Pago" MaxLength="60" />
+
+            <Grid ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <ComboBox x:Name="TypeBox" Header="Tipo" HorizontalAlignment="Stretch" SelectionChanged="OnTypeChanged">
+                    <x:String>Efectivo</x:String>
+                    <x:String>Banco (caja de ahorro)</x:String>
+                    <x:String>Billetera (Mercado Pago, Ualá)</x:String>
+                    <x:String>Tarjeta de crédito</x:String>
+                    <x:String>Inversión (plazo fijo, FCI)</x:String>
+                </ComboBox>
+                <StackPanel Grid.Column="1" Spacing="4">
+                    <TextBlock Text="Moneda" />
+                    <toolkit:Segmented x:Name="CurrencyBox" HorizontalAlignment="Stretch" SelectionChanged="OnCurrencyChanged">
+                        <toolkit:SegmentedItem Content="$ Pesos" />
+                        <toolkit:SegmentedItem Content="US$ Dólares" />
+                    </toolkit:Segmented>
+                </StackPanel>
+            </Grid>
+            <TextBlock x:Name="CurrencyLockedText" Visibility="Collapsed" Style="{StaticResource LabelStyle}" TextWrapping="Wrap"
+                       Text="La moneda no se puede cambiar porque la cuenta ya tiene movimientos." />
+
+            <StackPanel Spacing="4">
+                <TextBlock x:Name="BalanceLabel" Text="Saldo inicial" />
+                <Grid ColumnSpacing="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock x:Name="BalanceSymbol" Text="$" VerticalAlignment="Center" FontSize="18" />
+                    <TextBox x:Name="BalanceBox" Grid.Column="1" PlaceholderText="0" InputScope="Number" />
+                </Grid>
+                <TextBlock x:Name="BalanceHelp" Style="{StaticResource LabelStyle}" TextWrapping="Wrap"
+                           Text="Cuánta plata hay hoy en esta cuenta. Para una tarjeta, poné en negativo lo que debés (ej. -50.000)." />
+            </StackPanel>
+
+            <controls:IconColorPicker x:Name="Picker" />
+
+            <ToggleSwitch x:Name="IncludeToggle" Header="Sumar al patrimonio total" OnContent="Sí" OffContent="No" IsOn="True" />
+
+            <InfoBar x:Name="ErrorBar" Severity="Error" IsClosable="False" />
+        </StackPanel>
+    </ScrollViewer>
+</ContentDialog>

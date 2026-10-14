@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Cuentitas.App.Views.TransactionsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:Cuentitas.App.ViewModels"
+    Loaded="OnLoaded"
+    Unloaded="OnUnloaded">
+
+    <Grid MaxWidth="{StaticResource PageMaxWidth}" Padding="{StaticResource PagePadding}" RowSpacing="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Título + navegación de mes -->
+        <Grid Margin="0,16,0,0" ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Movimientos" Style="{StaticResource PageTitleStyle}" VerticalAlignment="Center" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" Visibility="{x:Bind ViewModel.MonthVisibility, Mode=OneWay}">
+                <Button Command="{x:Bind ViewModel.PreviousMonthCommand}" ToolTipService.ToolTip="Mes anterior">
+                    <FontIcon Glyph="&#xE76B;" FontSize="14" />
+                </Button>
+                <Button Command="{x:Bind ViewModel.CurrentMonthCommand}" MinWidth="170" ToolTipService.ToolTip="Volver al mes actual">
+                    <TextBlock Text="{x:Bind ViewModel.MonthTitle, Mode=OneWay}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                </Button>
+                <Button Command="{x:Bind ViewModel.NextMonthCommand}" IsEnabled="{x:Bind ViewModel.CanGoNext, Mode=OneWay}" ToolTipService.ToolTip="Mes siguiente">
+                    <FontIcon Glyph="&#xE76C;" FontSize="14" />
+                </Button>
+                <Button Click="OnExportClick" Margin="8,0,0,0" ToolTipService.ToolTip="Exportar a Excel o CSV">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon Glyph="&#xE896;" FontSize="14" />
+                        <TextBlock Text="Exportar" />
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <!-- Filtros -->
+        <Grid Grid.Row="1" ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <AutoSuggestBox PlaceholderText="Buscar por nota, categoría o cuenta (busca en todos los meses)" QueryIcon="Find"
+                            Text="{x:Bind ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <ComboBox x:Name="TypeFilter" Grid.Column="1" MinWidth="150" ItemsSource="{x:Bind ViewModel.TypeFilters}"
+                      SelectedIndex="0" SelectionChanged="OnTypeFilterChanged" />
+            <ComboBox x:Name="AccountFilter" Grid.Column="2" MinWidth="170" ItemsSource="{x:Bind ViewModel.AccountFilters}"
+                      SelectedIndex="0" SelectionChanged="OnAccountFilterChanged" />
+            <ComboBox x:Name="NecessityFilter" Grid.Column="3" MinWidth="170" ItemsSource="{x:Bind ViewModel.NecessityFilters}"
+                      SelectedIndex="0" SelectionChanged="OnNecessityFilterChanged" />
+        </Grid>
+
+        <!-- Resumen -->
+        <Border Grid.Row="2" Style="{StaticResource CardStyle}" Padding="20,14">
+            <Grid ColumnSpacing="32">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="Ingresos" Style="{StaticResource LabelStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.IncomeText, Mode=OneWay}" Foreground="{ThemeResource IncomeBrush}" Style="{StaticResource SubtitleTextBlockStyle}" />
+                </StackPanel>
+                <StackPanel Grid.Column="1">
+                    <TextBlock Text="Gastos" Style="{StaticResource LabelStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.ExpenseText, Mode=OneWay}" Style="{StaticResource SubtitleTextBlockStyle}" />
+                </StackPanel>
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="Balance" Style="{StaticResource LabelStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.NetText, Mode=OneWay}" Style="{StaticResource SubtitleTextBlockStyle}" />
+                </StackPanel>
+                <StackPanel Grid.Column="3" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <TextBlock Text="{x:Bind ViewModel.ResultText, Mode=OneWay}" Style="{StaticResource LabelStyle}" HorizontalAlignment="Right" />
+                    <TextBlock Text="{x:Bind ViewModel.UsdSummaryText, Mode=OneWay}" Style="{StaticResource LabelStyle}" HorizontalAlignment="Right" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Lista agrupada por día -->
+        <Border Grid.Row="3" Style="{StaticResource CardStyle}" Padding="0">
+            <Grid>
+                <ListView x:Name="List" SelectionMode="None"
+                          IsItemClickEnabled="True" ItemClick="OnItemClick" Padding="4,0,4,8"
+                          ItemTemplate="{StaticResource TransactionRowTemplate}">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem" BasedOn="{StaticResource DefaultListViewItemStyle}">
+                            <Setter Property="ContextFlyout">
+                                <Setter.Value>
+                                    <MenuFlyout Opening="OnRowMenuOpening">
+                                        <MenuFlyoutItem Text="Editar" Icon="Edit" Click="OnEditClick" />
+                                        <MenuFlyoutItem Text="Duplicar con fecha de hoy" Icon="Copy" Click="OnDuplicateClick" />
+                                        <MenuFlyoutSeparator />
+                                        <MenuFlyoutItem Text="Eliminar" Icon="Delete" Click="OnDeleteClick" />
+                                    </MenuFlyout>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.GroupStyle>
+                        <GroupStyle>
+                            <GroupStyle.HeaderTemplate>
+                                <DataTemplate x:DataType="vm:TransactionGroup">
+                                    <Grid>
+                                        <TextBlock Text="{x:Bind Header}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                        <TextBlock Text="{x:Bind TotalText}" Style="{StaticResource LabelStyle}" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                    </Grid>
+                                </DataTemplate>
+                            </GroupStyle.HeaderTemplate>
+                            <GroupStyle.HeaderContainerStyle>
+                                <Style TargetType="ListViewHeaderItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                    <Setter Property="Padding" Value="16,12,24,4" />
+                                </Style>
+                            </GroupStyle.HeaderContainerStyle>
+                        </GroupStyle>
+                    </ListView.GroupStyle>
+                </ListView>
+
+                <StackPanel Visibility="{x:Bind ViewModel.EmptyVisibility, Mode=OneWay}" Spacing="8"
+                            HorizontalAlignment="Center" VerticalAlignment="Center" Padding="24">
+                    <FontIcon Glyph="&#xE721;" FontSize="36" HorizontalAlignment="Center" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                    <TextBlock Text="No hay movimientos para mostrar" Style="{StaticResource BodyStrongTextBlockStyle}" HorizontalAlignment="Center" />
+                    <TextBlock Text="Probá con otro mes o cambiá los filtros." Style="{StaticResource LabelStyle}" HorizontalAlignment="Center" />
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Page>

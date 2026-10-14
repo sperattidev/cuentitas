@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Cuentitas.App.Views.CategoriesPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
+    xmlns:vm="using:Cuentitas.App.ViewModels"
+    xmlns:controls="using:Cuentitas.App.Controls"
+    Loaded="OnLoaded"
+    Unloaded="OnUnloaded">
+
+    <Page.Resources>
+        <DataTemplate x:Key="CategoryRowTemplate" x:DataType="vm:CategoryOption">
+            <Grid ColumnSpacing="12" Padding="0,8" Background="Transparent">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <controls:IconBadge IconKey="{x:Bind IconKey}" Color="{x:Bind Color}" Size="40" />
+                <TextBlock Grid.Column="1" Text="{x:Bind Name}" Style="{StaticResource BodyStrongTextBlockStyle}" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="2" Text="{x:Bind NecessityLabel}" Style="{StaticResource LabelStyle}" VerticalAlignment="Center" />
+            </Grid>
+        </DataTemplate>
+
+        <MenuFlyout x:Key="CategoryMenu" Opening="OnMenuOpening">
+            <MenuFlyoutItem Text="Editar" Icon="Edit" Click="OnEditClick" />
+            <MenuFlyoutItem Text="Archivar" Icon="Folder" Click="OnArchiveClick" />
+        </MenuFlyout>
+    </Page.Resources>
+
+    <Grid MaxWidth="900" Padding="{StaticResource PagePadding}" RowSpacing="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid Margin="0,16,0,0" ColumnSpacing="16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+                <TextBlock Text="Categorías" Style="{StaticResource PageTitleStyle}" />
+                <TextBlock Style="{StaticResource LabelStyle}" TextWrapping="Wrap"
+                           Text="Clic para editar · clic derecho para archivar. Las archivadas no se ofrecen al cargar, pero conservan su historial." />
+            </StackPanel>
+            <Button Grid.Column="1" Style="{StaticResource AccentButtonStyle}" VerticalAlignment="Center" Click="OnNewClick">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <SymbolIcon Symbol="Add" />
+                    <TextBlock Text="Nueva categoría" />
+                </StackPanel>
+            </Button>
+        </Grid>
+
+        <toolkit:Segmented Grid.Row="1" HorizontalAlignment="Left" SelectedIndex="{x:Bind ViewModel.KindIndex, Mode=TwoWay}">
+            <toolkit:SegmentedItem Content="Gastos" />
+            <toolkit:SegmentedItem Content="Ingresos" />
+        </toolkit:Segmented>
+
+        <Border Grid.Row="2" Style="{StaticResource CardStyle}" Padding="4,8">
+            <ListView x:Name="ItemsList" ItemsSource="{x:Bind ViewModel.Items}" SelectionMode="None" IsItemClickEnabled="True"
+                      ItemClick="OnItemClick" ItemTemplate="{StaticResource CategoryRowTemplate}">
+                <ListView.Footer>
+                    <StackPanel Spacing="4" Margin="12,16,12,8" Visibility="{x:Bind ViewModel.ArchivedVisibility, Mode=OneWay}">
+                        <TextBlock Text="Archivadas" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                        <ListView x:Name="ArchivedList" ItemsSource="{x:Bind ViewModel.ArchivedItems}" SelectionMode="None" IsItemClickEnabled="True"
+                                  ItemClick="OnItemClick" ItemTemplate="{StaticResource CategoryRowTemplate}" Opacity="0.6" Margin="-12,0" />
+                    </StackPanel>
+                </ListView.Footer>
+            </ListView>
+        </Border>
+    </Grid>
+</Page>
