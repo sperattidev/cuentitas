@@ -87,6 +87,16 @@ Usa `PrintWindow`: captura **sólo la ventana de Cuentitas**, nunca el resto de 
 - **Desinstalar:** Configuración de Windows > Aplicaciones > Cuentitas. Pregunta si borrar los datos.
 - Los scripts `.ps1` y el `.iss` se guardan en **UTF-8 con BOM** (PowerShell 5 e Inno Setup leen como ANSI si no).
 
+## Publicar una versión nueva en GitHub
+1. Subir `<Version>` en `src/Cuentitas.App/Cuentitas.App.csproj` y anotar los cambios en `docs/ROADMAP.md`.
+2. `powershell -ExecutionPolicy Bypass -File tools\publish.ps1` (genera instalador y zip en `dist\`).
+3. Commit y push a `main`.
+4. Crear la release con los dos archivos (reemplazar X.Y.Z):
+   ```powershell
+   gh release create vX.Y.Z dist\Cuentitas-Setup-X.Y.Z.exe dist\Cuentitas-win-x64.zip --repo sperattidev/cuentitas --target main --title "Cuentitas X.Y.Z" --notes "Novedades…" --latest
+   ```
+El README enlaza a `releases/latest`, así que siempre apunta a la última versión.
+
 ## Si alguien olvida su PIN
 Con Windows Hello activo se desbloquea con la huella/cara/PIN de Windows. Si no: cerrar la app, abrir
 `%LOCALAPPDATA%\Cuentitas\cuentitas.db` con cualquier visor de SQLite y vaciar el valor de `lock.pinHash` en la
