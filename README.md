@@ -10,8 +10,15 @@ tus servicios con vencimientos, tus metas de ahorro y tus presupuestos, y descub
 - **Rápida:** Ctrl+N, monto, categoría, Enter.
 - **Para la familia:** cada persona usa su propio usuario de Windows y tiene sus propias cuentas.
 
+## Descargar
+**[Descargar la última versión](https://github.com/sperattidev/cuentitas/releases/latest)** → bajá
+`Cuentitas-Setup-X.Y.Z.exe`. Requiere Windows 10 (1809 o posterior) o Windows 11, de 64 bits.
+
+> Windows puede mostrar "Windows protegió su PC" porque el instalador no está firmado con un certificado
+> comercial: tocá **Más información → Ejecutar de todas formas**.
+
 ## Instalar
-1. Ejecutar `Cuentitas-Setup-1.0.0.exe` (no pide permisos de administrador).
+1. Ejecutar `Cuentitas-Setup-X.Y.Z.exe` (no pide permisos de administrador).
 2. La primera vez, la bienvenida te guía para cargar tus cuentas, tu sueldo y tus servicios.
 
 Para **actualizar**, ejecutá el instalador de la versión nueva: tus datos se conservan.
